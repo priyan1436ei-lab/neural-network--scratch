@@ -1,382 +1,384 @@
-# Handwritten Digit Recognition AI
+# 🧠 Neural Network from Scratch — XOR with NumPy
 
-A handwritten-digit recognition project built with **Python, PyTorch, the MNIST dataset, and Gradio**. The project trains a neural network to classify grayscale images of handwritten digits from **0 to 9**, then uses the trained model in an interactive drawing app.
+Build and understand a small artificial neural network **from scratch using NumPy**. This repository walks through the core mechanics of a feed-forward neural network and uses the classic **XOR problem** to demonstrate why a hidden layer with nonlinear activation can learn a relationship that a single linear neuron cannot.
 
-> **Project status:** The PyTorch training notebook has been run in Google Colab. The training log reported **468,202 model parameters** and used the CPU. Add your actual final test accuracy below after checking the completed training output. The interactive app works only when `app.py`, the matching model architecture, and the trained checkpoint are correctly connected.
-
-## Table of Contents
-
-- [Project Overview](#project-overview)
-- [Features](#features)
-- [How It Works](#how-it-works)
-- [Dataset](#dataset)
-- [Technology Stack](#technology-stack)
-- [Model and Results](#model-and-results)
-- [Repository Structure](#repository-structure)
-- [Run in Google Colab](#run-in-google-colab)
-- [Run Locally on Windows](#run-locally-on-windows)
-- [Interactive App Workflow](#interactive-app-workflow)
-- [Training the Model](#training-the-model)
-- [Evaluation](#evaluation)
-- [Troubleshooting](#troubleshooting)
-- [Limitations and Future Improvements](#limitations-and-future-improvements)
-- [GitHub Publishing](#github-publishing)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
-
-## Project Overview
-
-The goal of this project is to demonstrate an end-to-end machine-learning workflow:
-
-1. Load the MNIST handwritten-digit dataset.
-2. Prepare the images and labels for PyTorch.
-3. Train a neural network to classify digits.
-4. Evaluate the trained model on test data.
-5. Save the best model checkpoint as `best_model.pt`.
-6. Connect the saved model to a Gradio interface so a user can draw a digit and receive a prediction.
-
-This project is suitable for learning the fundamentals of neural networks, image classification, model evaluation, and deploying a small interactive AI demo.
-
-## Features
-
-- **Digit classification:** Predicts one of ten classes, `0` through `9`.
-- **PyTorch training:** Uses a neural network implemented with PyTorch.
-- **Checkpoint saving:** Saves the model weights when test accuracy improves, according to the training script.
-- **Interactive drawing interface:** The planned Gradio app lets users draw a digit with a mouse or touch input.
-- **Prediction scores:** Shows class scores from the model's softmax output. These are model confidence scores, not guaranteed probabilities of correctness.
-- **Colab support:** Training can be performed in Google Colab without setting up a local Python environment.
-
-## How It Works
-
-```text
-MNIST dataset
-     |
-     v
-Image preprocessing
-     |
-     v
-PyTorch neural network
-     |
-     v
-Training and evaluation
-     |
-     v
-Save best_model.pt
-     |
-     v
-Gradio drawing interface
-     |
-     v
-Draw a digit -> preprocess image -> model prediction -> scores for 0-9
-```
-
-### Prediction pipeline
-
-1. A user draws a digit on a canvas.
-2. The drawing is converted to grayscale.
-3. The digit is cropped and resized to the format expected by the model, commonly `28 × 28` pixels for MNIST.
-4. Pixel values are scaled and normalized exactly as they were during training.
-5. The image is converted into a PyTorch tensor and passed to the model.
-6. The model produces class logits; softmax can convert these logits into a score for each digit.
-7. The app displays the highest-scoring class and the scores for the other classes.
-
-**Important:** Inference preprocessing must match the preprocessing used during training. If the training pipeline applies MNIST normalization, the app must apply the same normalization. The model class and layer dimensions in `model.py` must also match the model that created `best_model.pt`.
-
-## Dataset
-
-This project is designed for the **MNIST handwritten-digit dataset**, a standard image-classification dataset containing grayscale images of handwritten digits.
-
-| Property | Description |
-|---|---|
-| Task | Multi-class image classification |
-| Classes | 10 classes: digits `0`–`9` |
-| Image format | Grayscale |
-| Image size | `28 × 28` pixels in the standard MNIST representation |
-| Training split | 60,000 images |
-| Test split | 10,000 images |
-| Typical label | Integer digit from `0` to `9` |
-
-The training script can download the dataset through `torchvision.datasets.MNIST` when the relevant download option is enabled and the runtime has internet access.
-
-## Technology Stack
-
-- **Python** — programming language
-- **PyTorch** — neural-network implementation, training, and inference
-- **Torchvision** — MNIST dataset utilities and image transforms
-- **NumPy** — numerical array operations, if used by the app
-- **Pillow (PIL)** — image processing for the drawing input, if used by the app
-- **Gradio** — interactive browser-based user interface
-- **Google Colab / Jupyter Notebook** — development and training environment
-- **Git and GitHub** — version control and project sharing
-
-## Model and Results
-
-The training output shared during development reported:
-
-- **Reported parameter count:** `468,202`
-- **Training device in that run:** CPU
-- **Checkpoint filename:** `best_model.pt`
-- **Dataset indicated by the download output:** MNIST, to be confirmed against the notebook's dataset-loading code
-
-Complete this table using the output from your own finished training run:
-
-| Metric | Result |
-|---|---|
-| Best test accuracy | `ADD_YOUR_ACTUAL_VALUE_HERE` |
-| Final training loss | `ADD_YOUR_ACTUAL_VALUE_HERE` |
-| Number of epochs | `ADD_YOUR_ACTUAL_VALUE_HERE` |
-| Device used | CPU or GPU, as shown by the notebook |
-
-Do not report an expected or illustrative accuracy as the measured result. Use the values printed by your completed notebook.
-
-## Repository Structure
-
-A clean project repository can use the following structure. Keep only files that actually exist in your project, and update the names if your notebook uses a different structure.
-
-```text
-mnist-digit-recognizer/
-├── app.py                 # Gradio interface and inference function
-├── model.py               # The exact neural-network architecture
-├── best_model.pt          # Trained state_dict checkpoint (generated by training)
-├── notebook.ipynb         # Colab/Jupyter training notebook
-├── requirements.txt       # Python dependencies
-├── README.md              # Project documentation
-└── .gitignore             # Excludes caches and temporary files
-```
-
-### File details
-
-- `app.py`: Loads the model, preprocesses the drawing, runs inference, and renders the Gradio interface.
-- `model.py`: Contains the neural-network class. Its architecture must match the one used to train `best_model.pt`.
-- `best_model.pt`: Contains saved model weights when the training code uses `torch.save(model.state_dict(), "best_model.pt")`.
-- `notebook.ipynb`: Contains dataset loading, model definition, training loop, evaluation, and checkpoint saving.
-- `requirements.txt`: Lists libraries needed to run the application locally.
-- `.gitignore`: Prevents cache files and other unnecessary files from being committed.
-
-If the model checkpoint is large or you prefer not to store model binaries in Git, consider GitHub Releases or a model-hosting service. Make sure the app has a documented way to obtain the checkpoint.
-
-## Run in Google Colab
-
-### 1. Open the notebook
-
-Open your `.ipynb` file in Google Colab, or upload the notebook through **File → Upload notebook**.
-
-### 2. Run the notebook cells
-
-Run the cells in order so that the imports, dataset loaders, model definition, and training functions are available before training begins.
-
-### 3. Train and save the checkpoint
-
-The training loop should save the best weights. For example, this pattern saves weights when the measured accuracy improves:
-
-```python
-if test_acc > best_acc:
-    best_acc = test_acc
-    torch.save(model.state_dict(), "best_model.pt")
-```
-
-This snippet assumes `best_acc`, `test_acc`, and `model` have already been defined in the training loop.
-
-### 4. Verify that the checkpoint exists
-
-```python
-import os
-print("Checkpoint exists:", os.path.exists("best_model.pt"))
-```
-
-The expected output is `True`. If it prints `False`, check whether the training cell completed successfully and whether the file was saved to a different working directory.
-
-### 5. Install Gradio if needed
-
-```python
-%pip install -q gradio
-```
-
-Continue with the app code only after confirming that the model definition, checkpoint, and preprocessing are compatible.
-
-## Run Locally on Windows
-
-These steps assume that Python is installed and available from Command Prompt or PowerShell.
-
-### 1. Create or open the project folder
-
-```powershell
-mkdir mnist-digit-recognizer
-cd mnist-digit-recognizer
-```
-
-If the folder already exists, open a terminal in that folder instead of creating it again.
-
-### 2. Create a virtual environment
-
-```powershell
-py -m venv .venv
-.venv\Scripts\Activate.ps1
-```
-
-If PowerShell blocks activation due to its execution policy, use Command Prompt and run:
-
-```bat
-.venv\Scripts\activate.bat
-```
-
-### 3. Install dependencies
-
-Create `requirements.txt` with the packages your code imports. A starting point is:
-
-```text
-torch
-torchvision
-gradio
-numpy
-Pillow
-```
-
-Then run:
-
-```powershell
-py -m pip install --upgrade pip
-py -m pip install -r requirements.txt
-```
-
-For GPU-enabled PyTorch, select the installation command appropriate for your operating system and CUDA setup from the official [PyTorch Get Started page](https://pytorch.org/get-started/locally/). CPU-only execution is also supported, although training may take longer.
-
-### 4. Add the project files
-
-Copy `app.py`, `model.py`, and `best_model.pt` into the project folder. Also include your training notebook if you want the training workflow to be reproducible.
-
-### 5. Launch the app
-
-```powershell
-py app.py
-```
-
-Gradio normally prints a local URL in the terminal. Open that URL in a browser. A local run does not require a public share link.
-
-## Interactive App Workflow
-
-When `app.py` is implemented and connected to the trained checkpoint, users should be able to:
-
-1. Open the Gradio page.
-2. Draw one digit between `0` and `9` on the canvas.
-3. Submit the drawing to the model.
-4. View the top prediction and the scores for the ten classes.
-5. Clear the canvas and test another digit.
-
-For a public demo, the app can later be deployed to a suitable hosting platform. A Gradio share URL created from a temporary Colab runtime is intended for sharing during that running session; it is not a permanent hosting solution.
-
-## Training the Model
-
-A typical training workflow is:
-
-1. Load the MNIST training and test datasets.
-2. Apply the same image transformations consistently.
-3. Create the neural-network model and move it to the selected device.
-4. Choose a loss function and optimizer that are compatible with the model output and labels.
-5. Iterate over training batches, compute loss, backpropagate gradients, and update model weights.
-6. Evaluate on the test loader as implemented in the current notebook.
-7. Save the best checkpoint according to the chosen metric.
-
-The exact architecture, optimizer, learning rate, batch size, number of epochs, and transforms should be documented from the actual notebook rather than guessed. For a more rigorous experiment, use a separate validation set to select the checkpoint and reserve the test set for final evaluation.
-
-## Evaluation
-
-At minimum, evaluate the model using test accuracy and loss. Additional useful checks include:
-
-- **Confusion matrix:** Shows which digits are frequently confused with one another.
-- **Per-class precision and recall:** Helps examine performance separately for each digit.
-- **Correct and incorrect examples:** Visually inspect predictions to identify common failure cases.
-- **Training curves:** Plot loss and accuracy against epoch to check learning behaviour and possible overfitting.
-
-Remember that a high score on MNIST does not guarantee equally strong performance on drawings from every user. The input canvas, handwriting style, stroke width, centering, and normalization can differ from the training images.
-
-## Troubleshooting
-
-### `Checkpoint exists: False`
-
-The checkpoint may not have been created, the training cell may not have completed, or the notebook may be running in a different directory. Check the current directory with `os.getcwd()` and list files with `os.listdir()`.
-
-### `FileNotFoundError: best_model.pt`
-
-Place the checkpoint in the app's working directory, or update the checkpoint path in `app.py`. If using Colab, rerun the training/checkpoint cell or upload the checkpoint again after a runtime reset.
-
-### `size mismatch` while loading the checkpoint
-
-The model architecture in `model.py` does not match the architecture used when saving the weights. Use the same class definition and layer dimensions as the training notebook.
-
-### Input shape error
-
-A CNN typically expects a tensor shaped like `[batch, channels, height, width]`, for example `[1, 1, 28, 28]`. A fully connected model may expect a flattened vector. Adapt preprocessing to the actual architecture rather than assuming one input shape.
-
-### Predictions are consistently wrong
-
-Check that:
-
-- The grayscale convention is correct (background and digit contrast match training).
-- The image is resized and centered appropriately.
-- Pixel scaling and normalization are identical to training.
-- The model is in evaluation mode using `model.eval()`.
-- Predictions run without gradient tracking, such as inside `torch.inference_mode()`.
-- The output layer has ten classes and the label order is `0` through `9`.
-
-### Gradio component or argument error
-
-Gradio APIs can change between versions. Check the installed version with `python -c "import gradio; print(gradio.__version__)"` and adapt the component arguments to that version's official documentation.
-
-### App link stops working
-
-A Colab runtime may disconnect or stop. Run the app in an active runtime, or deploy it to a persistent hosting service for a longer-lived demo.
-
-## Limitations and Future Improvements
-
-Possible future improvements include:
-
-- Show the top prediction more prominently and display all ten class scores.
-- Add a button to clear the canvas and a preview of the processed `28 × 28` input.
-- Add confusion-matrix and training-curve visualizations.
-- Compare a fully connected network with a convolutional neural network (CNN).
-- Use a validation split for checkpoint selection and only use the test set for final evaluation.
-- Add unit tests for image preprocessing and model output shape.
-- Package the app for deployment and document the hosting steps.
-- Test with varied handwriting styles and record known failure cases.
-
-## GitHub Publishing
-
-1. Create a new GitHub repository, for example `mnist-digit-recognizer`.
-2. Add `README.md`, the notebook, application code, model definition, dependency file, and other necessary assets.
-3. Verify that no private credentials, API tokens, or unrelated personal files are included.
-4. Add screenshots or a short GIF of the working app if available.
-5. Confirm that setup instructions are reproducible on a fresh environment.
-
-Example Git commands, run from inside the project folder:
-
-```bash
-git init
-git add README.md app.py model.py requirements.txt notebook.ipynb .gitignore
-git commit -m "Add handwritten digit recognition project"
-git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/mnist-digit-recognizer.git
-git push -u origin main
-```
-
-Replace `YOUR-USERNAME` with your GitHub username and change the filenames in `git add` to match the files that actually exist. If Git has already been initialized or `origin` already exists, do not repeat those commands blindly; inspect `git status` and `git remote -v` first.
-
-### Suggested repository description
-
-> Handwritten Digit Recognition using PyTorch and MNIST, with a Gradio drawing interface for interactive digit predictions.
-
-## License
-
-Choose a license before publishing. If you want others to reuse and modify your project, an OSI-approved license such as the MIT License is a common option. Add a `LICENSE` file only after deciding which license you want to apply. Confirm any dataset and dependency terms as well.
-
-## Acknowledgements
-
-- The MNIST handwritten-digit dataset and its maintainers.
-- The PyTorch and Torchvision communities.
-- The Gradio project for its Python-based interface framework.
+[![Open in Google Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/priyan1436ei-lab/neural-network--scratch/blob/main/neural_network_from_scratch.ipynb)
 
 ---
 
-**Maintainer:** Add your name or GitHub username here.  
-**Project type:** Educational machine-learning project.  
-**Last updated:** Update this date when you revise the project.
+## 📌 Table of Contents
+
+- [Overview](#-overview)
+- [Features](#-features)
+- [The XOR Problem](#-the-xor-problem)
+- [Network Architecture](#-network-architecture)
+- [How Learning Works](#-how-learning-works)
+- [Technology Stack](#-technology-stack)
+- [Getting Started](#-getting-started)
+- [Run in Google Colab](#-run-in-google-colab)
+- [Run Locally](#-run-locally)
+- [Interactive Network Visualizer](#-interactive-network-visualizer)
+- [Results](#-results)
+- [Project Structure](#-project-structure)
+- [Troubleshooting](#-troubleshooting)
+- [Experiments](#-experiments-to-try)
+- [Limitations and Future Improvements](#-limitations-and-future-improvements)
+- [Learning Resources](#-learning-resources)
+- [Author](#-author)
+- [License](#-license)
+
+## 🚀 Overview
+
+Neural networks are made from layers of interconnected neurons. Each connection has a weight, each neuron can have a bias, and an activation function introduces nonlinearity. During training, the network changes its weights and biases to reduce prediction error.
+
+This project implements these ideas with basic NumPy operations rather than relying on an automatic-differentiation framework. It is designed as a hands-on learning project for students who want to see what happens inside a neural network.
+
+The main notebook includes:
+
+1. An XOR dataset containing four binary input combinations.
+2. A NumPy implementation with a forward pass.
+3. Sigmoid activation and its derivative.
+4. Mean squared error loss.
+5. Backpropagation using the chain rule.
+6. Gradient-descent parameter updates.
+7. Predictions for all four XOR combinations.
+8. Loss-curve plotting examples.
+9. A slider-based interactive network visualization in Google Colab.
+10. An additional reusable `NeuralNetwork` class with ReLU hidden activations and a sigmoid output.
+
+## ✨ Features
+
+- **NumPy-only core model:** Manually computes the forward and backward passes.
+- **XOR classification:** Learns the mapping from two binary inputs to one binary output.
+- **Manual backpropagation:** Calculates gradients without PyTorch or TensorFlow autograd.
+- **Gradient descent:** Updates the weights and biases using the computed gradients.
+- **Sigmoid activation:** Converts neuron outputs to values between 0 and 1.
+- **Training-loss visualization:** Plots loss values over training epochs.
+- **Interactive sliders:** Change input A and input B to observe the prediction.
+- **Network diagram:** Displays the 2-input, 4-hidden-neuron, 1-output architecture, weights, and hidden activations.
+- **Beginner-friendly notebook:** Combines code, experiments, and visual results in Google Colab.
+
+## 🔢 The XOR Problem
+
+XOR means **exclusive OR**. Its output is 1 when the two input bits are different and 0 when they are the same.
+
+| Input A | Input B | Expected XOR |
+|---:|---:|---:|
+| 0 | 0 | 0 |
+| 0 | 1 | 1 |
+| 1 | 0 | 1 |
+| 1 | 1 | 0 |
+
+A single linear neuron cannot correctly represent this pattern. A network with a hidden layer and a nonlinear activation function can learn it.
+
+The project trains on these four input examples and then evaluates the network on the same truth table. Because this is a tiny teaching dataset, successfully predicting all four cases is a demonstration of learning the XOR function, not evidence of performance on a large real-world dataset.
+
+## 🏗️ Network Architecture
+
+The primary NumPy implementation uses this architecture:
+
+```text
+Input layer             Hidden layer            Output layer
+
+   Input A ───────┐     ┌────────────┐
+                  ├────▶│ Hidden 1   │───┐
+   Input B ───────┤     │ Hidden 2   │   │
+                  ├────▶│ Hidden 3   │───┼────▶ XOR prediction
+                  └────▶│ Hidden 4   │───┘
+                        └────────────┘
+
+                   2 → 4 → 1
+```
+
+- **Input layer:** 2 values, each either 0 or 1.
+- **Hidden layer:** 4 neurons with sigmoid activation in the primary implementation.
+- **Output layer:** 1 sigmoid neuron representing the XOR output probability.
+- **Weights and biases:** Initialized in NumPy and adjusted during training.
+
+The notebook also contains another `NeuralNetwork` class that supports configurable layer sizes, ReLU hidden activations, sigmoid output, and cross-entropy loss. In that example, the architecture is `[2, 8, 1]`. These are separate demonstrations in the notebook; run the relevant cells in order and keep their model variables distinct if extending the code.
+
+## ⚙️ How Learning Works
+
+### 1. Forward propagation
+
+Each layer calculates a weighted sum plus a bias:
+
+```text
+z = X @ W + b
+a = activation(z)
+```
+
+Here, `X` is the input or previous layer's activation, `W` is a weight matrix, `b` is a bias, and `a` is the layer's activation.
+
+### 2. Loss calculation
+
+The primary implementation calculates mean squared error:
+
+```python
+loss = np.mean((y - a2) ** 2)
+```
+
+This measures the difference between expected labels `y` and output activations `a2`.
+
+### 3. Backpropagation
+
+The implementation computes gradients from the output layer toward the input layer using the chain rule. It calculates the impact of weights and biases on the loss.
+
+For sigmoid activation, when the activation is already known as `a`, the derivative is:
+
+```python
+def sigmoid_derivative(a):
+    return a * (1 - a)
+```
+
+### 4. Gradient descent
+
+Parameters are updated in the direction that reduces the loss:
+
+```python
+W -= learning_rate * dW
+b -= learning_rate * db
+```
+
+The main example uses a learning rate of `0.5` and runs for `10,000` epochs. These are configuration choices, and you can experiment with them.
+
+### 5. Prediction
+
+After training, the network computes a continuous output. A threshold of `0.5` can convert this output into a binary class:
+
+```python
+prediction = int(output[0, 0] >= 0.5)
+```
+
+## 🛠️ Technology Stack
+
+| Technology | Use |
+|---|---|
+| Python | Main programming language |
+| NumPy | Matrix operations and numerical computations |
+| Matplotlib | Loss graph and network diagram |
+| ipywidgets | Interactive input sliders |
+| Google Colab / Jupyter Notebook | Notebook execution and visualization |
+| Git and GitHub | Version control and publishing |
+
+The primary network implementation is built with NumPy. PyTorch is not required for the XOR model itself.
+
+## ✅ Getting Started
+
+### Requirements
+
+- Python 3.9+ recommended for a modern Python environment.
+- NumPy.
+- Matplotlib for plotting.
+- ipywidgets for interactive sliders in notebook environments.
+- Google Colab is the easiest option because the notebook already includes Colab-specific widget setup.
+
+Install the packages locally:
+
+```bash
+python -m pip install numpy matplotlib ipywidgets
+```
+
+## ☁️ Run in Google Colab
+
+1. Open the notebook using the badge at the top of this README.
+2. In Google Colab, select **Runtime → Run all** or run the code cells in order.
+3. The main training cell creates the XOR input data, initializes weights, trains the network, and prints losses during training.
+4. The prediction cell prints the model outputs for all four input combinations.
+5. Run the visualization cell after the relevant trained weights have been created.
+6. Use the **Input A** and **Input B** sliders to change the values from 0 to 1. The visualization should update the activations, output probability, binary prediction, expected result, and connection weights.
+
+### Important notebook execution note
+
+The notebook contains multiple versions of the neural network. The slider visualizer requires the variables `W1`, `b1`, `W2`, and `b2` created by the primary 2→4→1 training cell. If you see an error saying those variables are missing, run the first training cell before running the visualizer.
+
+The notebook also includes a separate PyTorch CNN-on-MNIST experiment. That is a different project workflow from the NumPy XOR implementation and uses a different architecture and dataset.
+
+## 💻 Run Locally
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/priyan1436ei-lab/neural-network--scratch.git
+cd neural-network--scratch
+```
+
+### 2. Install dependencies
+
+```bash
+python -m pip install numpy matplotlib ipywidgets jupyter
+```
+
+### 3. Launch Jupyter Notebook
+
+```bash
+jupyter notebook
+```
+
+Open `neural_network_from_scratch.ipynb` in the Jupyter interface and run the cells in order.
+
+> **Note:** The notebook contains imports from `google.colab` for its interactive Colab visualizer. Those Colab-specific lines will not work unchanged in a local Jupyter session. The core XOR training and prediction cells can run locally; adapt the widget setup for a local environment if you want the same interactive visualization.
+
+## 🎛️ Interactive Network Visualizer
+
+The Colab notebook includes sliders for the two XOR inputs and a diagram of the network.
+
+The visualization shows:
+
+- The values of input A and input B.
+- The activation of each of the four hidden neurons.
+- The output probability generated by the network.
+- The thresholded XOR prediction.
+- The expected XOR value.
+- The current weights on connections between layers.
+- A status indicating whether the prediction matches the truth table.
+
+### How to use it
+
+1. Run the primary XOR training cell first.
+2. Run the interactive visualization cell.
+3. Move either slider between 0 and 1.
+4. Observe how hidden activations and the output change.
+5. Test all four combinations: (0,0), (0,1), (1,0), and (1,1).
+
+The diagram displays the trained model's weights. Its colors and line widths are visual cues for the sign and magnitude of weights; they are not a proof that a particular connection independently causes the final answer.
+
+## 📊 Results
+
+The notebook contains sample loss values used for a training-loss plot:
+
+| Epoch | Recorded loss value |
+|---:|---:|
+| 0 | 0.283190 |
+| 1,000 | 0.183325 |
+| 2,000 | 0.020997 |
+| 3,000 | 0.005533 |
+| 4,000 | 0.002786 |
+| 5,000 | 0.001768 |
+| 6,000 | 0.001262 |
+| 7,000 | 0.000966 |
+| 8,000 | 0.000774 |
+| 9,000 | 0.000642 |
+
+These values are stored as a plotting example inside the notebook. For a fresh experiment, capture loss values from the actual training loop and plot those values rather than assuming these example values will be reproduced exactly.
+
+### XOR evaluation checklist
+
+After training, confirm that the rounded predictions match:
+
+| Input | Expected class |
+|---|---:|
+| (0, 0) | 0 |
+| (0, 1) | 1 |
+| (1, 0) | 1 |
+| (1, 1) | 0 |
+
+If you report an accuracy percentage in a project presentation, calculate it from the four actual predictions and state that it is measured on the XOR truth table.
+
+## 📁 Project Structure
+
+The repository currently contains the notebook:
+
+```text
+neural-network--scratch/
+├── README.md
+└── neural_network_from_scratch.ipynb
+```
+
+The notebook includes multiple examples, training loops, graphing code, predictions, and an interactive network visualizer. You can split the notebook into separate Python modules later if you want a more structured project.
+
+## 🐛 Troubleshooting
+
+### Error: Missing trained model variables
+
+**Message:** `Missing trained model variables: ['W1', 'b1', 'W2', 'b2']`
+
+**Solution:** Run the primary XOR training cell that defines and trains `W1`, `b1`, `W2`, and `b2` before running the visualizer. If the runtime was reset, rerun the required setup and training cells.
+
+### Error: `NameError: loss_history is not defined`
+
+**Solution:** Define a list such as `loss_history = []` before training and append the calculated loss during each iteration, or run the plotting example cell that defines sample values.
+
+For live loss tracking, add these lines to the main training cell:
+
+```python
+loss_history = []
+
+for epoch in range(epochs):
+    # Forward pass and loss calculation go here.
+    # After calculating loss, store it:
+    loss_history.append(float(loss))
+    # Backpropagation and parameter updates follow.
+```
+
+Place the loss append inside your existing loop; do not replace the forward pass, backpropagation, or update logic with the comments above.
+
+### Interactive controls do not appear
+
+In Google Colab, run the widget setup cell and allow the custom widget manager when prompted. Then execute the visualization cell after training. In local Jupyter, remove or adapt imports from `google.colab` and configure ipywidgets for that environment.
+
+### Predictions are incorrect
+
+- Verify the training loop has completed.
+- Confirm the labels follow the XOR truth table.
+- Use the correct trained weights and biases.
+- Ensure the hidden layer has a nonlinear activation.
+- Try a different random seed, learning rate, or number of epochs.
+- Test all four input combinations after training.
+
+### Loss-plot label mismatch
+
+The primary implementation uses **Mean Squared Error (MSE)** in its first training loop. The notebook's later plot should label the y-axis according to the loss values that were actually collected. The separate `NeuralNetwork` class uses binary cross-entropy loss.
+
+## 🧪 Experiments to Try
+
+- Change the hidden-layer size from 4 to 2, 8, or 16 neurons.
+- Experiment with different learning rates.
+- Change the number of training epochs.
+- Compare sigmoid and ReLU hidden-layer activation functions.
+- Plot actual loss values from the training loop.
+- Display the hidden-layer activation values for every XOR input.
+- Save weights and biases after training and load them in a separate prediction script.
+- Compare the manual NumPy implementation against a small PyTorch equivalent.
+- Add tests that assert the four rounded predictions match the XOR truth table.
+- Improve the visualizer with a legend for connection weights and neuron activations.
+
+Change one parameter at a time and record the effect so that results remain understandable.
+
+## 🔭 Limitations and Future Improvements
+
+This is a small educational example, not a general-purpose production model. It trains on only four XOR examples. The current notebook also contains several versions of a neural network, so variable names and cell execution order matter.
+
+Useful improvements include:
+
+- Refactor the notebook into clear modules for data, model, training, prediction, and visualization.
+- Add automated tests for activation functions, gradients, and XOR predictions.
+- Add a chart that plots the live loss history collected during training.
+- Add a button or control to reset the visualizer.
+- Add numerical gradient checks to verify backpropagation.
+- Compare optimizers and initialization strategies.
+- Write a separate local-Jupyter-compatible visualizer.
+- Document the environment and dependencies with a `requirements.txt` file.
+
+## 📚 Learning Resources
+
+- [Neural Networks and Deep Learning — Michael Nielsen](http://neuralnetworksanddeeplearning.com/)
+- [NumPy Documentation](https://numpy.org/doc/)
+- [Matplotlib Documentation](https://matplotlib.org/stable/)
+- [IPython Widgets Documentation](https://ipywidgets.readthedocs.io/)
+- [Google Colab](https://colab.research.google.com/)
+
+## 👨‍💻 Author
+
+**Priyan A**
+
+- GitHub: [@priyan1436ei-lab](https://github.com/priyan1436ei-lab)
+- Repository: [neural-network--scratch](https://github.com/priyan1436ei-lab/neural-network--scratch)
+
+## 📄 License
+
+No license file is currently documented in this README. Add a `LICENSE` file after choosing the license you want to apply. Until then, do not assume others have permission to redistribute the code.
+
+---
+
+If you found this useful for learning neural networks, consider starring the repository ⭐ and trying the experiments above.
